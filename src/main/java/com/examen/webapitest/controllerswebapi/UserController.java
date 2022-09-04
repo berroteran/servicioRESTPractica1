@@ -7,11 +7,13 @@ import com.examen.webapitest.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,39 +24,60 @@ import java.util.stream.Collectors;
 public class UserController {
 
     @Autowired
-    UserService service;
+    private UserService userService;
 
     @GetMapping
     public List<User> findAllUsers() {
-        return service.findAll();
+        return userService.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/v1/{id}")
     public User findUserById(@PathVariable(value = "id") long id) {
-        return (User) service.findById(id).orElseGet(null);
+        return (User) userService.findById(id).orElseGet(null);
     }
 
-    @PostMapping("/v1/singin")
-    public void singup() {
-
+    /**
+     * Metodo para iniciar sesion
+     */
+    @PostMapping( path = "/v1/signin",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE )
+    public Response signin(User user) {
+        String token = "";
+        try {
+            token = this.userService.signin(user);
+            return Response.status(Response.Status.CREATED).entity(token).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
 
-    @PostMapping("/v1/singup")
+    /**
+     * Metodo crear nuevo usuario
+     *
+     * @param user
+     * @return
+     * @throws BussinesException
+     */
+    @PostMapping(path = "/v1/signup",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @ExceptionHandler(EmailException.class)
-    public User register(@Validated @RequestBody User user) throws BussinesException {
+    public User createUser(@Validated @RequestBody User user) throws BussinesException {
         String token = getJWTToken(user.getName());
         //User user = new User();
         //user.setUser(username);
         //user.setToken(token);
         //return user;
 
-        return service.save(user);
+        return userService.save(user);
     }
 
     @PostMapping
     public User saveUser(@Validated @RequestBody User user) {
         try {
-            user = service.save(user);
+            user = userService.save(user);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,9 +88,10 @@ public class UserController {
     // tag::get-aggregate-root[]
     @GetMapping("/users")
     List<User> all() {
-        return service.findAll();
+        return userService.findAll();
     }
     // end::get-aggregate-root[]
+
 
     private String getJWTToken(String username) {
         String secretKey = "mySecretKey";
@@ -78,4 +102,6 @@ public class UserController {
 
         return "Bearer " + token;
     }
+
+
 }

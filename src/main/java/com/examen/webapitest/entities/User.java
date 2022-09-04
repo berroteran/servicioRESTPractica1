@@ -7,7 +7,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +35,10 @@ public class User extends EntityAuditory  implements Serializable {
     private String password;
 
     private LocalDateTime lastLoginDate;
+    private Boolean active;
+
+    private String token;
+
 
     @OneToMany(mappedBy = "user", targetEntity = Phone.class, fetch = FetchType.LAZY)
     private List<Phone> phones;
@@ -78,5 +81,37 @@ public class User extends EntityAuditory  implements Serializable {
 
     public void setPhones(List<Phone> phoneList) {
         this.phones = phoneList;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(final Boolean activo) {
+        this.active = activo;
+    }
+
+    public LocalDateTime getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(final LocalDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(final String token) {
+        this.token = token;
+    }
+
+    public User orElseThrow(final Object o) {
+        return null;
+    }
+
+    public String getRoles() {
+        return null;
     }
 }

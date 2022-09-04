@@ -19,9 +19,9 @@ public class EntityAuditory {
     static DateTimeFormatter fechaTimeFormato = DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" );
     static DateTimeFormatter fechaFormato = DateTimeFormatter.ofPattern( "yyyy-MM-dd" );
 
-    @Column(name = "creation_date", nullable = false, updatable = false)
+    @Column(name = "creation_date", nullable = true, updatable = false)
     @CreatedDate
-    private LocalDateTime creationDate;
+    private LocalDateTime creationDate = Fechas.getFechaHoraActual();
 
     @Column (name = "mod_date", nullable = true)
     @LastModifiedDate
@@ -88,13 +88,6 @@ public class EntityAuditory {
         }**/
 
          return null;
-    }
-
-    public String getFechaCreacionFormatedHuman () {
-        return Fechas.getFechaFormateadaHuman( this.creationDate.toLocalDate() );
-    }
-    public String getFechaHoraCreacionFormatedHuman () {
-        return Fechas.getFechaHoraFormateadaHuman(creationDate);
     }
 
 

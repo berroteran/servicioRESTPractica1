@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
+@Table(name = "Phones")
 public class Phone implements Serializable {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -27,7 +28,7 @@ public class Phone implements Serializable {
     @JoinColumn(name = "user_id") private User user;
 
     private String number;
-    private String citycode;
+    private String cityCode;
     private String countryCode;
 
 
@@ -48,11 +49,11 @@ public class Phone implements Serializable {
     }
 
     public String getCitycode() {
-        return citycode;
+        return cityCode;
     }
 
     public void setCitycode(String citycode) {
-        this.citycode = citycode;
+        this.cityCode = citycode;
     }
 
     public String getCountryCode() {

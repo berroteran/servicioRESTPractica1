@@ -19,9 +19,9 @@ public class JwtTokenProvider {
 	@Autowired
 	public JwtTokenProvider(@Value("${security.jwt.token.secret-key}") String secretKey, 
 							@Value("${security.jwt.token.expiration}") long expirationTime) {
-		this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-		this.expirationTime = expirationTime;
-	}
+      this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+      this.expirationTime = expirationTime;
+  }
 	
 	public String createToken(String email) {
         Claims claims = Jwts.claims().setSubject(email);

@@ -3,16 +3,22 @@ package com.examen.webapitest.controllerswebapi;
 import com.examen.webapitest.entities.User;
 import com.examen.webapitest.exceptions.BussinesException;
 import com.examen.webapitest.exceptions.EmailException;
+import com.examen.webapitest.model.MensajeError;
+import com.examen.webapitest.model.dto.LoginDto;
+import com.examen.webapitest.model.dto.UserDTO;
 import com.examen.webapitest.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
@@ -27,11 +33,13 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
+    @ResponseStatus(code = HttpStatus.OK)
     public List<User> findAllUsers() {
         return userService.findAll();
     }
 
     @GetMapping("/v1/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
     public User findUserById(@PathVariable(value = "id") long id) {
         return (User) userService.findById(id).orElseGet(null);
     }
@@ -42,14 +50,14 @@ public class UserController {
     @PostMapping( path = "/v1/signin",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE )
-    public Response signin(User user) {
+    public ResponseEntity<?> signin(@RequestBody @Valid LoginDto login) {
         String token = "";
         try {
-            token = this.userService.signin(user);
-            return Response.status(Response.Status.CREATED).entity(token).build();
+            token = this.userService.signin(login);
+            return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return new ResponseEntity<>(new MensajeError(e.getMessage()) , HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -64,29 +72,18 @@ public class UserController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ExceptionHandler(EmailException.class)
-    public User createUser(@Validated @RequestBody User user) throws BussinesException {
-        String token = getJWTToken(user.getName());
-        //User user = new User();
-        //user.setUser(username);
-        //user.setToken(token);
-        //return user;
-
-        return userService.save(user);
-    }
-
-    @PostMapping
-    public User saveUser(@Validated @RequestBody User user) {
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Response createUser(@Validated @RequestBody UserDTO user) throws BussinesException {
         try {
-            user = userService.save(user);
-        } catch (Exception e) {
-            e.printStackTrace();
+             return userService.createUser(user);
+        }catch (Exception e){
+            return Response.noContent().status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error" + e.getMessage()).build();
         }
-        return user;
     }
 
     // Aggregate root
     // tag::get-aggregate-root[]
-    @GetMapping("/users")
+    @GetMapping(path = "/v1/users", consumes = MediaType.APPLICATION_JSON_VALUE,    produces = MediaType.APPLICATION_JSON_VALUE)
     List<User> all() {
         return userService.findAll();
     }

@@ -43,6 +43,16 @@ public class User extends EntityAuditory  implements Serializable {
     @OneToMany(mappedBy = "user", targetEntity = Phone.class, fetch = FetchType.LAZY)
     private List<Phone> phones;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns
+        = @JoinColumn(name = "user_id",
+        referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id",
+            referencedColumnName = "id"))
+    private List<RoleEntity> roles;
+
+
+
     public UUID getId() {
         return id;
     }
@@ -111,7 +121,11 @@ public class User extends EntityAuditory  implements Serializable {
         return null;
     }
 
-    public String getRoles() {
-        return null;
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(final List<RoleEntity> roles) {
+        this.roles = roles;
     }
 }
